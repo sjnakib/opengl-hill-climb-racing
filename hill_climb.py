@@ -14,6 +14,8 @@ BG_COLOR = (0.53, 0.81, 0.98, 1.0)
 hills = []
 hill_render_step_size = 10
 terrain_offset_x = 0
+start_index = 0
+end_index = 0
 
 
 def generateHills():
@@ -47,14 +49,19 @@ def generateHills():
 
 
 def drawHills():
-    global hills, hill_render_step_size, terrain_offset_x, WINDOW_WIDTH
+    global hills, hill_render_step_size, terrain_offset_x, WINDOW_WIDTH, start_index, end_index
     glPointSize(2)
     glColor3f(0.01, 0.5, 0.01)
 
-    for i in range(len(hills) - 1):
-        x1 = i * hill_render_step_size - terrain_offset_x - WINDOW_WIDTH // 2
+    # Only draw the part that is visible in the viewing area
+    view_width = WINDOW_WIDTH
+    start_index = max(0, int(terrain_offset_x // hill_render_step_size))
+    end_index = min(start_index + int(view_width // hill_render_step_size) + 1, len(hills) - 1)
+
+    for i in range(start_index, end_index):
+        x1 = i * hill_render_step_size - terrain_offset_x - view_width // 2
         y1 = hills[i]
-        x2 = (i + 1) * hill_render_step_size - terrain_offset_x - WINDOW_WIDTH // 2
+        x2 = (i + 1) * hill_render_step_size - terrain_offset_x - view_width // 2
         y2 = hills[i + 1]
         drawLine(int(x1), int(y1), int(x2), int(y2))
 
