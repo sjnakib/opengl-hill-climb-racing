@@ -30,6 +30,7 @@ wheel_radius = 10
 car_speed = 0
 car_top_speed = 500
 gravity = -100
+paused = False
 last_time = time.time()
 
 
@@ -105,6 +106,9 @@ def drawCar():
 def updateCar(delta_time):
     global car_front_y, car_back_y, car_velocity_y_front, car_velocity_y_back, gravity, start_index, end_index, wheel_radius, car_length, hill_render_step_size, car_speed, terrain_offset_x
 
+    if paused:
+        return
+
     # Gravity on the front and rear wheels
     car_velocity_y_front += gravity * delta_time
     car_velocity_y_back += gravity * delta_time
@@ -146,7 +150,7 @@ def updateCar(delta_time):
 
 
 def keyboardListener(key, x, y):
-    global car_speed
+    global car_speed, paused
 
     if key == b'\x1b':
         glutLeaveMainLoop()
@@ -157,7 +161,22 @@ def keyboardListener(key, x, y):
     elif key == b'd':
         car_speed = car_top_speed
 
+    elif key == b' ':
+        paused = not paused
+        print("Game paused!" if paused else "Game resumed!")
+
     glutPostRedisplay()
+
+
+def renderText(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
+    glRasterPos2f(x, y)
+    for char in text:
+        glutBitmapCharacter(font, ord(char))
+
+
+def displayPaused():
+    glColor3f(1, 1, 0)
+    renderText(-50, 0, "Game Paused", font=GLUT_BITMAP_HELVETICA_18)
 
 
 def animate():
@@ -188,6 +207,10 @@ def display():
     gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0)
 
     drawHills()
+
+    if paused:
+        displayPaused()
+
     drawCar()
 
     glutSwapBuffers()
