@@ -165,7 +165,25 @@ def keyboardListener(key, x, y):
         paused = not paused
         print("Game paused!" if paused else "Game resumed!")
 
+    elif key == b'r':
+        restartGame()
+
     glutPostRedisplay()
+
+
+def restartGame():
+    global car_front_x, car_front_y, car_back_x, car_back_y, car_velocity_y_front, car_velocity_y_back, car_speed, paused, terrain_offset_x, last_time
+    car_front_x = car_length // 2
+    car_back_x = -car_length // 2
+    car_front_y = 0
+    car_back_y = 0
+    car_velocity_y_front = 0
+    car_velocity_y_back = 0
+    car_speed = 0
+    paused = False
+    terrain_offset_x = 0
+    last_time = time.time()
+    generateHills()
 
 
 def renderText(x, y, text, font=GLUT_BITMAP_HELVETICA_18):
