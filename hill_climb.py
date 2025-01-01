@@ -111,6 +111,10 @@ def updateCar(delta_time):
     car_front_y += car_velocity_y_front * delta_time
     car_back_y += car_velocity_y_back * delta_time
 
+    # Apply friction
+    friction_coefficient = 0.98
+    car_speed *= friction_coefficient
+
     # Move the terrain under the car
     new_terrain_offset_x = terrain_offset_x + car_speed * delta_time
 
