@@ -27,6 +27,8 @@ car_velocity_y_front = 0
 car_velocity_y_back = 0
 car_height = 20
 wheel_radius = 10
+car_speed = 0
+car_top_speed = 500
 gravity = -100
 last_time = time.time()
 
@@ -101,13 +103,24 @@ def drawCar():
 
 
 def updateCar(delta_time):
-    global car_front_y, car_back_y, car_velocity_y_front, car_velocity_y_back, gravity, start_index, end_index, wheel_radius, car_length, hill_render_step_size
+    global car_front_y, car_back_y, car_velocity_y_front, car_velocity_y_back, gravity, start_index, end_index, wheel_radius, car_length, hill_render_step_size, car_speed, terrain_offset_x
 
     # Gravity on the front and rear wheels
     car_velocity_y_front += gravity * delta_time
     car_velocity_y_back += gravity * delta_time
     car_front_y += car_velocity_y_front * delta_time
     car_back_y += car_velocity_y_back * delta_time
+
+    # Move the terrain under the car
+    new_terrain_offset_x = terrain_offset_x + car_speed * delta_time
+
+    max_offset_x = (len(hills) - 1) * hill_render_step_size - WINDOW_WIDTH
+    if new_terrain_offset_x < 0:
+        new_terrain_offset_x = 0
+    elif new_terrain_offset_x > max_offset_x:
+        new_terrain_offset_x = max_offset_x
+
+    terrain_offset_x = new_terrain_offset_x
 
     # Find the terrain height under each wheel
     front_idx = int((start_index + end_index) / 2 + ((car_length / 2) / hill_render_step_size))
@@ -126,6 +139,21 @@ def updateCar(delta_time):
         if car_back_y < hill_y_back + wheel_radius * 2:
             car_back_y = hill_y_back + wheel_radius * 2
             car_velocity_y_back = 0
+
+
+def keyboardListener(key, x, y):
+    global car_speed
+
+    if key == b'\x1b':
+        glutLeaveMainLoop()
+
+    elif key == b'a':
+        car_speed = -car_top_speed
+
+    elif key == b'd':
+        car_speed = car_top_speed
+
+    glutPostRedisplay()
 
 
 def animate():
@@ -171,6 +199,7 @@ if __name__ == "__main__":
     init()
 
     glutDisplayFunc(display)
+    glutKeyboardFunc(keyboardListener)
     glutIdleFunc(animate)
 
     glutMainLoop()
