@@ -1,5 +1,6 @@
 import math
 import random
+import time
 
 from OpenGL.GL import *
 from OpenGL.GLUT import *
@@ -20,10 +21,12 @@ end_index = 0
 car_length = 50
 car_front_x = car_length // 2
 car_back_x = -car_length // 2
-car_front_y = 0
-car_back_y = 0
+car_y = 0
+car_velocity_y = 0
 car_height = 20
 wheel_radius = 10
+gravity = -100
+last_time = time.time()
 
 
 def generateHills():
@@ -75,14 +78,14 @@ def drawHills():
 
 
 def drawCar():
-    global car_front_x, car_front_y, car_back_x, car_back_y, car_height, wheel_radius
+    global car_front_x, car_y, car_back_x, car_height, wheel_radius
 
     # Draw the car body
     glColor3f(0.8, 0.1, 0.1)
-    x1, y1 = car_back_x, car_back_y
-    x2, y2 = car_front_x, car_front_y
-    x3, y3 = car_front_x, car_front_y + car_height
-    x4, y4 = car_back_x, car_back_y + car_height
+    x1, y1 = car_back_x, car_y
+    x2, y2 = car_front_x, car_y
+    x3, y3 = car_front_x, car_y + car_height
+    x4, y4 = car_back_x, car_y + car_height
 
     drawLine(int(x1), int(y1), int(x2), int(y2))
     drawLine(int(x2), int(y2), int(x3), int(y3))
@@ -91,8 +94,37 @@ def drawCar():
 
     # Draw the wheels
     glColor3f(0.0, 0.0, 0.0)
-    drawCircle(wheel_radius, car_back_x, car_back_y - wheel_radius)
-    drawCircle(wheel_radius, car_front_x, car_front_y - wheel_radius)
+    drawCircle(wheel_radius, car_back_x, car_y - wheel_radius)
+    drawCircle(wheel_radius, car_front_x, car_y - wheel_radius)
+
+
+def updateCar(delta_time):
+    global car_y, car_velocity_y, gravity, start_index, end_index, wheel_radius
+
+    # Gravity
+    car_velocity_y += gravity * delta_time
+    car_y += car_velocity_y * delta_time
+
+    # Keep the car on the terrain
+    center_idx = int((start_index + end_index) / 2)
+
+    if 0 <= center_idx < len(hills):
+        hill_y = hills[center_idx]
+
+        if car_y < hill_y + wheel_radius * 2:
+            car_y = hill_y + wheel_radius * 2
+            car_velocity_y = 0
+
+
+def animate():
+    global last_time
+    current_time = time.time()
+    delta_time = current_time - last_time
+    last_time = current_time
+
+    updateCar(delta_time)
+
+    glutPostRedisplay()
 
 
 def init():
@@ -127,5 +159,6 @@ if __name__ == "__main__":
     init()
 
     glutDisplayFunc(display)
+    glutIdleFunc(animate)
 
     glutMainLoop()
