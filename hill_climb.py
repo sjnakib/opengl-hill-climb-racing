@@ -273,6 +273,21 @@ def displayPaused():
     renderText(-50, 0, "Game Paused", font=GLUT_BITMAP_HELVETICA_18)
 
 
+def displayFuelLevel():
+    global fuel_level
+    glColor3f(0, 0, 0)
+    renderText(-WINDOW_WIDTH // 2 + 10, WINDOW_HEIGHT // 2 - 20, f"Fuel: {int(fuel_level)} L")
+
+
+def displayCarSpeedAndGear():
+    global car_speed
+    glColor3f(0, 0, 0)
+    renderText(-WINDOW_WIDTH // 2 + 10, -WINDOW_HEIGHT // 2 + 20, f"Speed: {int(abs(car_speed//10)*3.6)} km/h")
+
+    gear = "Forward" if car_speed > 0 else "Reverse" if car_speed < 0 else "Neutral"
+    renderText(WINDOW_WIDTH // 2 - 150, -WINDOW_HEIGHT // 2 + 20, f"Gear: {gear}")
+
+
 def animate():
     global last_time
     current_time = time.time()
@@ -308,6 +323,8 @@ def display():
 
     drawCar()
     drawCollectibles()
+    displayFuelLevel()
+    displayCarSpeedAndGear()
 
     glutSwapBuffers()
 
