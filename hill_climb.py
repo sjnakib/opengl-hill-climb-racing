@@ -147,9 +147,9 @@ def drawCollectibles():
 
 
 def checkCollectibleCollision():
-    global collectables, car_front_x, car_front_y, car_back_x, car_back_y, fuel_level, score, terrain_offset_x, car_length, wheel_radius
+    global collectables, car_front_x, car_front_y, car_back_x, car_back_y, fuel_level, score, terrain_offset_x, car_length, wheel_radius, start_index, end_index
 
-    for i in range(len(collectables)):
+    for i in range(start_index, end_index):
         collectable = collectables[i]
         if collectable is None:
             continue
