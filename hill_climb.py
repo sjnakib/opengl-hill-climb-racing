@@ -31,6 +31,8 @@ wheel_radius = 10
 car_speed = 0
 car_top_speed = 500
 gravity = -100
+fuel_level = 100
+score = 0
 paused = False
 last_time = time.time()
 
@@ -144,6 +146,37 @@ def drawCollectibles():
             drawLine(x4, y4, x1, y1)
 
 
+def checkCollectibleCollision():
+    global collectables, car_front_x, car_front_y, car_back_x, car_back_y, fuel_level, score, terrain_offset_x, car_length, wheel_radius
+
+    for i in range(len(collectables)):
+        collectable = collectables[i]
+        if collectable is None:
+            continue
+
+        cx = i * hill_render_step_size - terrain_offset_x - WINDOW_WIDTH // 2
+        cy = hills[i] + 30
+
+        car_left = car_front_x - car_length // 2
+        car_right = car_front_x + car_length // 2
+        car_bottom = min(car_back_y, car_front_y) - wheel_radius
+        car_top = max(car_back_y, car_front_y) + wheel_radius
+
+        if (
+            cx >= car_left and cx <= car_right and
+            cy >= car_bottom and cy <= car_top
+        ):
+            if collectable == "coin":
+                coin_score = random.choice([50, 100, 200, 500, 1000, 5000])
+                score += coin_score
+                print(f"Coin collected! Score: {score}")
+            elif collectable == "fuel":
+                fuel_level = 100
+                print(f"Fuel collected! Fuel level: {fuel_level}")
+
+            collectables[i] = None
+
+
 def updateCar(delta_time):
     global car_front_y, car_back_y, car_velocity_y_front, car_velocity_y_back, gravity, start_index, end_index, wheel_radius, car_length, hill_render_step_size, car_speed, terrain_offset_x
 
@@ -213,7 +246,7 @@ def keyboardListener(key, x, y):
 
 
 def restartGame():
-    global car_front_x, car_front_y, car_back_x, car_back_y, car_velocity_y_front, car_velocity_y_back, car_speed, paused, terrain_offset_x, last_time
+    global car_front_x, car_front_y, car_back_x, car_back_y, car_velocity_y_front, car_velocity_y_back, car_speed, fuel_level, score, paused, terrain_offset_x, last_time
     car_front_x = car_length // 2
     car_back_x = -car_length // 2
     car_front_y = 0
@@ -221,6 +254,8 @@ def restartGame():
     car_velocity_y_front = 0
     car_velocity_y_back = 0
     car_speed = 0
+    fuel_level = 100
+    score = 0
     paused = False
     terrain_offset_x = 0
     last_time = time.time()
@@ -245,6 +280,7 @@ def animate():
     last_time = current_time
 
     updateCar(delta_time)
+    checkCollectibleCollision()
 
     glutPostRedisplay()
 
