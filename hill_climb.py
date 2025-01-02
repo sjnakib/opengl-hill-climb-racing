@@ -33,6 +33,7 @@ car_top_speed = 500
 gravity = -100
 fuel_level = 100
 score = 0
+game_over = False
 paused = False
 last_time = time.time()
 
@@ -178,9 +179,9 @@ def checkCollectibleCollision():
 
 
 def updateCar(delta_time):
-    global car_front_y, car_back_y, car_velocity_y_front, car_velocity_y_back, gravity, start_index, end_index, wheel_radius, car_length, hill_render_step_size, car_speed, terrain_offset_x
+    global car_front_y, car_back_y, car_velocity_y_front, car_velocity_y_back, gravity, start_index, end_index, wheel_radius, car_length, hill_render_step_size, car_speed, terrain_offset_x, fuel_level, game_over
 
-    if paused:
+    if fuel_level <= 0 or paused or game_over:
         return
 
     # Gravity on the front and rear wheels
@@ -222,6 +223,13 @@ def updateCar(delta_time):
             car_back_y = hill_y_back + wheel_radius * 2
             car_velocity_y_back = 0
 
+    # Fuel consumption
+    fuel_level -= abs(car_speed) * delta_time * 0.01
+
+    if fuel_level <= 0:
+        game_over = True
+        print("Game over! Fuel depleted! Score:", score)
+
 
 def keyboardListener(key, x, y):
     global car_speed, paused
@@ -230,14 +238,17 @@ def keyboardListener(key, x, y):
         glutLeaveMainLoop()
 
     elif key == b'a':
-        car_speed = -car_top_speed
+        if not paused and not game_over:
+            car_speed = -car_top_speed
 
     elif key == b'd':
-        car_speed = car_top_speed
+        if not paused and not game_over:
+            car_speed = car_top_speed
 
     elif key == b' ':
-        paused = not paused
-        print("Game paused!" if paused else "Game resumed!")
+        if not game_over:
+            paused = not paused
+            print("Game paused!" if paused else "Game resumed!")
 
     elif key == b'r':
         restartGame()
@@ -246,7 +257,7 @@ def keyboardListener(key, x, y):
 
 
 def restartGame():
-    global car_front_x, car_front_y, car_back_x, car_back_y, car_velocity_y_front, car_velocity_y_back, car_speed, fuel_level, score, paused, terrain_offset_x, last_time
+    global car_front_x, car_front_y, car_back_x, car_back_y, car_velocity_y_front, car_velocity_y_back, car_speed, fuel_level, score, game_over, paused, terrain_offset_x, last_time
     car_front_x = car_length // 2
     car_back_x = -car_length // 2
     car_front_y = 0
@@ -256,6 +267,7 @@ def restartGame():
     car_speed = 0
     fuel_level = 100
     score = 0
+    game_over = False
     paused = False
     terrain_offset_x = 0
     last_time = time.time()
