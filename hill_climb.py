@@ -306,6 +306,12 @@ def displayScore():
     renderText(-WINDOW_WIDTH // 2 + 10, WINDOW_HEIGHT // 2 - 40, f"Score: {int(score)}")
 
 
+def displayDistanceTravelled():
+    global terrain_offset_x
+    glColor3f(0, 0, 0)
+    renderText(-WINDOW_WIDTH // 2 + 10, WINDOW_HEIGHT // 2 - 60, f"Travelled: {int(terrain_offset_x// 10)} m")
+
+
 def animate():
     global last_time
     current_time = time.time()
@@ -344,6 +350,7 @@ def display():
     displayFuelLevel()
     displayCarSpeedAndGear()
     displayScore()
+    displayDistanceTravelled()
 
     glutSwapBuffers()
 
