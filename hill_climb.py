@@ -13,6 +13,7 @@ WINDOW_WIDTH, WINDOW_HEIGHT = 800, 450
 BG_COLOR = (0.53, 0.81, 0.98, 1.0)
 
 hills = []
+collectables = []
 hill_render_step_size = 10
 terrain_offset_x = 0
 start_index = 0
@@ -35,8 +36,10 @@ last_time = time.time()
 
 
 def generateHills():
-    global hills, hill_render_step_size
+    global hills, hill_render_step_size, collectables
     hills = []
+    max_hills = 50000 // hill_render_step_size
+    collectables = [None] * max_hills
 
     amplitude = 70
     angle_inc = 0.1
@@ -59,6 +62,18 @@ def generateHills():
 
         y = amplitude * sin + offset_y
         hills.append(y)
+
+        # Generate collectibles randomly
+        if random.random() < 0.05:
+            index = int(x // hill_render_step_size)
+            if index < max_hills:
+                collectable_type = "coin"
+                collectables[index] = collectable_type
+        elif random.random() < 0.01:
+            index = int(x // hill_render_step_size)
+            if index < max_hills:
+                collectable_type = "fuel"
+                collectables[index] = collectable_type
 
         x += hill_render_step_size
         angle += angle_inc
@@ -101,6 +116,32 @@ def drawCar():
     glColor3f(0.0, 0.0, 0.0)
     drawCircle(wheel_radius, car_back_x, car_back_y - wheel_radius)
     drawCircle(wheel_radius, car_front_x, car_front_y - wheel_radius)
+
+
+def drawCollectibles():
+    global collectables, terrain_offset_x, start_index, end_index
+
+    for i in range(start_index, end_index):
+        collectable = collectables[i]
+        if collectable is None:
+            continue
+
+        cx = i * hill_render_step_size - terrain_offset_x - WINDOW_WIDTH // 2
+        cy = hills[i] + 30
+
+        if collectable == "coin":
+            glColor3f(1.0, 0.84, 0.0)
+            drawCircle(5, int(cx), int(cy))
+        elif collectable == "fuel":
+            glColor3f(1.0, 0.0, 0.0)
+            x1, y1 = int(cx - 8), int(cy - 8)
+            x2, y2 = int(cx + 8), int(cy - 8)
+            x3, y3 = int(cx + 8), int(cy + 8)
+            x4, y4 = int(cx - 8), int(cy + 8)
+            drawLine(x1, y1, x2, y2)
+            drawLine(x2, y2, x3, y3)
+            drawLine(x3, y3, x4, y4)
+            drawLine(x4, y4, x1, y1)
 
 
 def updateCar(delta_time):
@@ -230,6 +271,7 @@ def display():
         displayPaused()
 
     drawCar()
+    drawCollectibles()
 
     glutSwapBuffers()
 
