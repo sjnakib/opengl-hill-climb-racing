@@ -300,6 +300,12 @@ def displayCarSpeedAndGear():
     renderText(WINDOW_WIDTH // 2 - 150, -WINDOW_HEIGHT // 2 + 20, f"Gear: {gear}")
 
 
+def displayScore():
+    global score
+    glColor3f(0, 0, 0)
+    renderText(-WINDOW_WIDTH // 2 + 10, WINDOW_HEIGHT // 2 - 40, f"Score: {int(score)}")
+
+
 def animate():
     global last_time
     current_time = time.time()
@@ -337,6 +343,7 @@ def display():
     drawCollectibles()
     displayFuelLevel()
     displayCarSpeedAndGear()
+    displayScore()
 
     glutSwapBuffers()
 
