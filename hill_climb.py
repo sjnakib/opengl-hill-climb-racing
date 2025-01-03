@@ -33,6 +33,9 @@ car_top_speed = 500
 gravity = -100
 fuel_level = 100
 score = 0
+airtime_start = None
+airtime_score = 0
+airtime_display_time = 0
 game_over = False
 paused = False
 last_time = time.time()
@@ -179,7 +182,7 @@ def checkCollectibleCollision():
 
 
 def updateCar(delta_time):
-    global car_front_y, car_back_y, car_velocity_y_front, car_velocity_y_back, gravity, start_index, end_index, wheel_radius, car_length, hill_render_step_size, car_speed, terrain_offset_x, fuel_level, game_over
+    global car_front_y, car_back_y, car_velocity_y_front, car_velocity_y_back, gravity, start_index, end_index, wheel_radius, car_length, hill_render_step_size, car_speed, terrain_offset_x, fuel_level, game_over, airtime_start, score, airtime_score, airtime_display_time
 
     if fuel_level <= 0 or paused or game_over:
         return
@@ -209,12 +212,16 @@ def updateCar(delta_time):
     front_idx = int((start_index + end_index) / 2 + ((car_length / 2) / hill_render_step_size))
     back_idx = int((start_index + end_index) / 2 - ((car_length / 2) / hill_render_step_size))
 
+    front_on_ground = False
+    back_on_ground = False
+
     if 0 <= front_idx < len(hills):
         hill_y_front = hills[front_idx]
 
         if car_front_y < hill_y_front + wheel_radius * 2:
             car_front_y = hill_y_front + wheel_radius * 2
             car_velocity_y_front = 0
+            front_on_ground = True
 
     if 0 <= back_idx < len(hills):
         hill_y_back = hills[back_idx]
@@ -222,6 +229,21 @@ def updateCar(delta_time):
         if car_back_y < hill_y_back + wheel_radius * 2:
             car_back_y = hill_y_back + wheel_radius * 2
             car_velocity_y_back = 0
+            back_on_ground = True
+
+    # Award bonus points for airtime
+    if not front_on_ground and not back_on_ground:
+        if airtime_start is None:
+            airtime_start = time.time()
+        else:
+            airtime_duration = time.time() - airtime_start
+            if airtime_duration >= 1:
+                airtime_score = 50 * (2 ** (int(airtime_duration) - 1))
+                score += airtime_score
+                airtime_display_time = time.time()
+                airtime_start = time.time()
+    else:
+        airtime_start = None
 
     # Fuel consumption
     fuel_level -= abs(car_speed) * delta_time * 0.01
@@ -257,7 +279,7 @@ def keyboardListener(key, x, y):
 
 
 def restartGame():
-    global car_front_x, car_front_y, car_back_x, car_back_y, car_velocity_y_front, car_velocity_y_back, car_speed, fuel_level, score, game_over, paused, terrain_offset_x, last_time
+    global car_front_x, car_front_y, car_back_x, car_back_y, car_velocity_y_front, car_velocity_y_back, car_speed, fuel_level, score, airtime_start, airtime_score, airtime_display_time, game_over, paused, terrain_offset_x, last_time
     car_front_x = car_length // 2
     car_back_x = -car_length // 2
     car_front_y = 0
@@ -267,6 +289,9 @@ def restartGame():
     car_speed = 0
     fuel_level = 100
     score = 0
+    airtime_start = None
+    airtime_score = 0
+    airtime_display_time = 0
     game_over = False
     paused = False
     terrain_offset_x = 0
@@ -312,6 +337,13 @@ def displayDistanceTravelled():
     renderText(-WINDOW_WIDTH // 2 + 10, WINDOW_HEIGHT // 2 - 60, f"Travelled: {int(terrain_offset_x// 10)} m")
 
 
+def displayAirtimeScore():
+    global airtime_score, airtime_display_time
+    if time.time() - airtime_display_time < 0.8:
+        glColor3f(0, 0, 0)
+        renderText(-50, 0, f"Airtime +{int(airtime_score)}")
+
+
 def animate():
     global last_time
     current_time = time.time()
@@ -351,6 +383,7 @@ def display():
     displayCarSpeedAndGear()
     displayScore()
     displayDistanceTravelled()
+    displayAirtimeScore()
 
     glutSwapBuffers()
 
