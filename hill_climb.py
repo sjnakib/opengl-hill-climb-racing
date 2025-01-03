@@ -344,6 +344,14 @@ def displayAirtimeScore():
         renderText(-50, 0, f"Airtime +{int(airtime_score)}")
 
 
+def displayGameOver():
+    global score
+    if int(time.time() * 2) % 2 == 0:
+        glColor3f(1, 0, 0)
+        renderText(-50, 0, "Game Over!", font=GLUT_BITMAP_HELVETICA_18)
+        renderText(-50, -30, f"Final Score: {int(score)}", font=GLUT_BITMAP_HELVETICA_18)
+
+
 def animate():
     global last_time
     current_time = time.time()
@@ -374,7 +382,9 @@ def display():
 
     drawHills()
 
-    if paused:
+    if game_over:
+        displayGameOver()
+    elif paused:
         displayPaused()
 
     drawCar()
