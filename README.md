@@ -6,6 +6,7 @@ A small 2D hill climb game where you drive over random hills, collect coins, and
 [![Forks](https://img.shields.io/github/forks/sjnakib/opengl-hill-climb-racing?style=for-the-badge&logo=github&color=blue)](https://github.com/sjnakib/opengl-hill-climb-racing/network/members)
 [![Last commit](https://img.shields.io/github/last-commit/sjnakib/opengl-hill-climb-racing?style=for-the-badge&color=green)](https://github.com/sjnakib/opengl-hill-climb-racing/commits/main)
 [![Top language](https://img.shields.io/github/languages/top/sjnakib/opengl-hill-climb-racing?style=for-the-badge)](https://github.com/sjnakib/opengl-hill-climb-racing)
+[![License](https://img.shields.io/github/license/sjnakib/opengl-hill-climb-racing?style=for-the-badge)](https://github.com/sjnakib/opengl-hill-climb-racing/blob/main/LICENSE)
 
 ## About
 
@@ -84,6 +85,7 @@ Press `D` to drive right. The car moves over the hills, the fuel gauge drops, an
 ├── docs/
 │   └── game-specification.docx  # Assignment brief
 ├── requirements.txt             # Python dependencies
+├── LICENSE                      # MIT license
 └── README.md
 ```
 
@@ -92,3 +94,7 @@ Press `D` to drive right. The car moves over the hills, the fuel gauge drops, an
 - Shafaat Jamil Nakib
 - A.B.M Danial
 - Rabaya Farzana Sikder
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for the full text.
