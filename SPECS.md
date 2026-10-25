@@ -1,6 +1,6 @@
 # SPECS: Hill Climb Racing v0.1.1 (binding engineering contract)
 
-Version 1.2.0. Status: binding. Set 2026-10-25. Amendments: 1.1.0 (2026-10-25) added the writing standard (§19) with its prose gate. 1.2.0 (2026-10-25) pinned the milestone B curves: the engine numeric law (§10.2), the difficulty table (§10.3), the drive profile (§10.4), and the spawn and fuel curves (§10.5).
+Version 1.3.0. Status: binding. Set 2026-10-25. Amendments: 1.1.0 (2026-10-25) added the writing standard (§19) with its prose gate. 1.2.0 (2026-10-25) pinned the milestone B curves: the engine numeric law (§10.2), the difficulty table (§10.3), the drive profile (§10.4), and the spawn and fuel curves (§10.5). 1.3.0 (2026-10-25) added branch verification and commit lanes (§7).
 
 Applies to every commit on `main` and every release from v0.1.1 onward.
 
@@ -169,7 +169,9 @@ Review-enforced, through human review:
 3. Comments explain why, never narrate obvious code, and follow §19. No commented-out code.
 4. Module-level mutable globals are forbidden. That flaw is what strangled the original university code. State lives on instances, and singletons are injected, not imported.
 5. Gameplay string and numeric constants live in exactly one module per concern.
-6. One PR holds one focused change. Commits follow Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`, `perf:`, `release:`.
+6. One PR holds one focused change. Commits follow Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`, `perf:`, `release:`, `ci:`.
+7. Branch verification precedes every write session: `git status -sb` and `git branch --show-current` run before any edit, any `git pull`, and any push, whichever agent or human is driving. `git pull origin main` never runs while checked out on another branch; switch first. Every push moves the current branch at HEAD, never a stale ref. Reason: a merged PR once left this working tree on its own feature branch, and a blind pull fast-forwarded the wrong branch; the rule makes that failure loud instead of silent.
+8. Commit lanes map to branches: `spec:`, `docs:`, `chore:`, and `release:` commits land on `main`, while `feat:`, `fix:`, `test:`, `refactor:`, `perf:`, and `ci:` commits land on a branch carrying the matching prefix, like `feat/mB-engine`. Machine-enforced by `scripts/branch_guard.py`, wired as local pre-commit, commit-msg, and pre-push guards through `.pre-commit-config.yaml`.
 
 ## 8. Architecture and performance budgets
 

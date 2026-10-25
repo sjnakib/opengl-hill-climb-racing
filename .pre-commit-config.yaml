@@ -17,3 +17,27 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+
+  # Branch verification guards (SPECS §7). Wrong-branch commits and pushes
+  # are refused locally, so a stale ref can never overwrite remote main.
+  - repo: local
+    hooks:
+      - id: branch-guard
+        name: branch guard (SPECS §7)
+        entry: uv run --no-sync python scripts/branch_guard.py verify-commit
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+      - id: lane-guard
+        name: lane guard (SPECS §7)
+        entry: uv run --no-sync python scripts/branch_guard.py verify-lane
+        language: system
+        stages: [commit-msg]
+      - id: push-guard
+        name: push guard (SPECS §7)
+        entry: uv run --no-sync python scripts/branch_guard.py verify-push
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
