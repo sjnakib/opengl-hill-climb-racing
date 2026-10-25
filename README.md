@@ -66,7 +66,7 @@ uv sync --all-groups
 # 3. install the local git hooks
 uv run pre-commit install
 
-# 4. gates (all must be green before any PR merges — see SPECS §13)
+# 4. gates (all must be green before any PR merges — see SPECS §12)
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src tests
