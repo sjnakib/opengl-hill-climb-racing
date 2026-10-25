@@ -47,6 +47,6 @@ uv run vale README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md SPECS.md \
    also pass the vale gate, and new markdown files join that gate.
 9. The `university/fall-2024` branch is read-only history. Never "modernize"
    it.
-10. Until the first game module lands, the CI `types` and `test` jobs skip
-    cleanly. Treat the skips as progress markers, not green lights. SPECS §17
-    defines what done means.
+10. Every CI gate runs on every PR. The `types` and `test` jobs now check the
+    package skeleton, and `test` also enforces the engine coverage floor
+    (SPECS §12). SPECS §17 defines what done means.

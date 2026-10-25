@@ -22,8 +22,8 @@ In development; no release yet. The current milestone is the
 with its checklist in
 [SPECS.md, Definition of Done](SPECS.md#17-definition-of-done-for-v011).
 Downloadable, dependency-free binaries for Linux, macOS, and Windows ship
-with it. For now the tree holds specs and tooling, no game code yet. That is
-deliberate: the contract first, the code second.
+with it. The tree now holds the package skeleton with its tests: CLI, seeded
+RNG, chunked terrain, settings, and saves. The playable game loop comes next.
 
 ## What v0.1.1 delivers
 

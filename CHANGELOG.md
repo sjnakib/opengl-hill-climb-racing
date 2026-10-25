@@ -10,12 +10,30 @@ versions fix bugs.
 ## [Unreleased]
 
 ### Added
+- The milestone A package skeleton: an installable `hillclimb` package with
+  the CLI flags of SPECS §10.7 (`--version`, `--seed`, `--selftest`,
+  `--safe-mode`, `--verbose`), a headless selftest, and the BOOT, MENU, PLAY,
+  PAUSED, GAMEOVER state machine.
+- Deterministic simulation foundations (SPECS §10.2, §10.3): named seeded RNG
+  streams and a chunked procedural terrain heightfield with O(1) height
+  queries and difficulty that ramps with distance.
+- Settings and best-score persistence (SPECS §9): TOML config and JSON save
+  stores with schema versioning, atomic writes, tolerant readers, pure
+  migrations, and corrupt-file recovery into `*.corrupt-<timestamp>.bak`.
+- A coverage gate script enforcing the 97 percent engine floor (SPECS §12),
+  and property tests T1 and T2 for terrain, the M1 round-trip and migration
+  property, golden v0-to-v1 fixtures, and unit suites for the engine, CLI,
+  and persistence layers.
 - A writing standard for all repo text (SPECS §19): plain, concise, human.
   A vale prose gate in CI enforces it (no em dashes, no emoji, no telltale
   AI vocabulary).
 - A `prose` CI job running the writing checks on every repo markdown file.
 
 ### Changed
+- The CI `types` and `test` jobs now run their real gates: mypy strict on the
+  new sources, and coverage-enforced tests with the engine floor.
+- The project is installed by `uv sync` through the uv build backend, so
+  `--version` reads installed metadata (SPECS §14).
 - README, CONTRIBUTING, SECURITY, and the PR template were rewritten to the
   new writing standard.
 
