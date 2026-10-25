@@ -68,6 +68,15 @@ jobs:
           if [ -d src/hillclimb/engine ]; then
             ! grep -R -nE '^\s*(import|from)\s+(pygame|numpy|socket|http|urllib|requests)' src/hillclimb/engine/
           fi
+      - name: engine numeric law (no libm transcendentals, SPECS §10.2)
+        run: |
+          if [ -d src/hillclimb/engine ]; then
+            ! grep -R -nE '\b(math|cmath)\s*\.\s*(sin|cos|tan|atan2|exp|log|log10|log2|pow|hypot)\b' \
+              src/hillclimb/engine --include='*.py'
+            ! grep -R -nE '^\s*from\s+(math|cmath)\s+import\s+.*\b(sin|cos|tan|atan2|exp|log|log10|log2|pow|hypot)\b' \
+              src/hillclimb/engine --include='*.py'
+            ! grep -R -nE '^\s*import\s+cmath\b' src/hillclimb/engine --include='*.py'
+          fi
       - name: repository network ban (SPECS §2)
         run: |
           if [ -d src ]; then
@@ -96,6 +105,24 @@ jobs:
         run: |
           uv run --no-sync coverage json -o coverage.json
           uv run --no-sync python scripts/coverage_gate.py coverage.json
+
+  determinism:
+    name: determinism (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e  # v10.3.2
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+      - name: R1 replay determinism (SPECS §12)
+        run: uv run --no-sync pytest tests/property/test_r1_determinism.py -q
 
   audit:
     runs-on: ubuntu-24.04
