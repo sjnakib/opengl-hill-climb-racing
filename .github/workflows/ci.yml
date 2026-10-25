@@ -54,13 +54,8 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --locked --group dev
-      - name: mypy (strict; skips cleanly until sources exist)
-        run: |
-          if [ -d src/hillclimb ]; then
-            uv run --no-sync mypy src tests
-          else
-            echo "no sources yet, mypy skipped until the game scaffolding lands"
-          fi
+      - name: mypy (strict)
+        run: uv run --no-sync mypy src tests
 
   rules:
     runs-on: ubuntu-24.04
@@ -95,12 +90,12 @@ jobs:
           SDL_VIDEODRIVER: dummy
           SDL_AUDIODRIVER: dummy
         run: |
-          if [ -d tests ]; then
-            uv run --no-sync coverage run -m pytest
-            uv run --no-sync coverage report
-          else
-            echo "no tests yet, skipped until the first module lands"
-          fi
+          uv run --no-sync coverage run -m pytest
+          uv run --no-sync coverage report
+      - name: engine coverage floor (SPECS §12)
+        run: |
+          uv run --no-sync coverage json -o coverage.json
+          uv run --no-sync python scripts/coverage_gate.py coverage.json
 
   audit:
     runs-on: ubuntu-24.04

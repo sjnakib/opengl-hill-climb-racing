@@ -1,0 +1,5 @@
+schema_version = 0
+volume = 80
+width = 1024
+height = 576
+theme = "classic"
