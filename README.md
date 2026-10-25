@@ -1,55 +1,57 @@
-# 🚗 Hill Climb Racing — v0.1.1 Rewrite
+# Hill Climb Racing, rewritten
 
-A modern ground-up rewrite of a 2D hill climb game: drive over procedurally
-generated hills, collect coins, manage your fuel, and beat your best score.
+A modern rewrite of a 2D hill climb game: drive over procedurally generated
+hills, collect coins, manage fuel, and beat your best score.
 
-> [!IMPORTANT]
-> **This project has moved on from its university days.**
-> It began as the **CSE423: Computer Graphics (BRAC University, Fall 2024)**
-> course assignment. That original code is preserved **untouched** on the
+> This project has moved on from its university days.
+> It started as the CSE423: Computer Graphics course assignment at BRAC
+> University in Fall 2024. The original code still lives on, untouched, in the
 > [`university/fall-2024`](https://github.com/sjnakib/opengl-hill-climb-racing/tree/university/fall-2024)
-> branch (original authors: Shafaat Jamil Nakib, A.B.M Danial,
-> Rabaya Farzana Sikder — see that branch's README).
+> branch. That branch's README credits its authors: Shafaat Jamil Nakib,
+> A.B.M. Danial, and Rabaya Farzana Sikder.
 >
-> The `main` branch is a **clean-room rewrite** toward a `v0.1.1` release.
-> All new work is authored by **Shafaat Jamil Nakib** only. The rewrite targets
-> current, actively maintained technology and replaces the legacy
-> PyOpenGL/FreeGLUT stack entirely. See [SPECS.md](SPECS.md) for the binding
-> engineering contract.
+> The `main` branch is a clean-room rewrite toward a v0.1.1 release, written
+> by Shafaat Jamil Nakib. The legacy PyOpenGL and FreeGLUT stack is gone. The
+> rewrite uses current, maintained tools, and the engineering contract lives
+> in [SPECS.md](SPECS.md).
 
 ## Status
 
-🚧 **In development — no release yet.** The current milestone target is
-[`v0.1.1`](https://github.com/sjnakib/opengl-hill-climb-racing/releases)
-(see the [Definition of Done in SPECS.md](SPECS.md#17-definition-of-done--v011)).
-Downloadable, dependency-free binaries for Linux, macOS and Windows will be
-attached to that release. In the meantime, the tree is intentionally
-script-free: SPECS and tooling first, code second.
+In development; no release yet. The current milestone is the
+[v0.1.1 release](https://github.com/sjnakib/opengl-hill-climb-racing/releases),
+with its checklist in
+[SPECS.md, Definition of Done](SPECS.md#17-definition-of-done-for-v011).
+Downloadable, dependency-free binaries for Linux, macOS, and Windows ship
+with it. For now the tree holds specs and tooling, no game code yet. That is
+deliberate: the contract first, the code second.
 
 ## What v0.1.1 delivers
 
-- Faithful remake of the original: endless procedural terrain, coins
-  (50–5000 points), fuel cans, fuel drain, airtime bonus, crash game over
-- Full game feel: menu, pause, settings (audio buses, keybinds, window),
-  gamepad support, particles, camera lookahead, best-score persistence
-- Deterministic engine: same seed → same world on every platform
-- 60 FPS on integrated graphics; strict coverage and CI quality gates
-- Cross-platform, dependency-free release binaries (Linux / macOS / Windows)
+- A faithful remake of the original: endless procedural terrain, coins worth
+  50 to 5000 points, fuel cans, fuel drain, airtime bonus, and a crash game
+  over
+- A complete game feel: menu, pause, settings for audio, input, and the
+  window, plus gamepad support, particles, camera lookahead, and best-score
+  persistence
+- A deterministic engine. The same seed builds the same world on every
+  platform
+- 60 FPS on integrated graphics, strict test coverage, and CI quality gates
+- Cross-platform release binaries with no dependencies to install
 
-Read [SPECS.md](SPECS.md) for the complete, binding specifications.
+The complete, binding specifications live in [SPECS.md](SPECS.md).
 
-## Tech stack (locked by SPECS.md §4)
+## Tech stack, locked by SPECS.md §4
 
 | Role | Technology |
 | --- | --- |
-| Language | Python 3.14 (pinned, `<3.15`) |
-| Framework | pygame-ce 2.5.8 (actively-maintained SDL2 fork, not legacy pygame) |
-| Env & lock | uv 0.13+ with committed `uv.lock` |
-| Lint / format | ruff 0.17+ (strict rule set) |
-| Types | mypy 2.4+ in `strict` mode |
+| Language | Python 3.14, pinned under 3.15 |
+| Framework | pygame-ce 2.5.8, the maintained SDL2 fork, not legacy pygame |
+| Environment and lock | uv 0.13 or newer, with a committed `uv.lock` |
+| Lint and format | ruff 0.17 or newer, strict rule set |
+| Types | mypy 2.4 or newer in strict mode |
 | Tests | pytest 9, coverage 7, hypothesis 6 |
 | Supply chain | pip-audit against the PyPI Advisory Database |
-| Packaging | PyInstaller 6.22+ `onedir` bundles per platform |
+| Prose | vale 3.25 or newer, per the writing standard in SPECS §19 |
 
 [![CI](https://github.com/sjnakib/opengl-hill-climb-racing/actions/workflows/ci.yml/badge.svg)](https://github.com/sjnakib/opengl-hill-climb-racing/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/sjnakib/opengl-hill-climb-racing)](LICENSE)
@@ -60,13 +62,13 @@ Read [SPECS.md](SPECS.md) for the complete, binding specifications.
 # 1. install uv (https://docs.astral.sh/uv/)
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 2. sync the locked environment (creates .venv, exact locked versions)
+# 2. sync the locked environment. This creates .venv with exact versions.
 uv sync --all-groups
 
 # 3. install the local git hooks
 uv run pre-commit install
 
-# 4. gates (all must be green before any PR merges — see SPECS §12)
+# 4. gates. All must be green before a PR merges (SPECS §12).
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src tests
@@ -75,17 +77,17 @@ uv run coverage report
 uv run pip-audit
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow and commit
-conventions. **[SPECS.md](SPECS.md) is binding** — changing it requires a
-dedicated spec-change PR (SPECS §18).
+[CONTRIBUTING.md](CONTRIBUTING.md) has the full workflow and commit
+conventions. SPECS.md is binding; changing it requires a dedicated
+spec-change commit (SPECS §18).
 
 ## Author
 
-- **Shafaat Jamil Nakib** — all post-university work. (The archived
-  university project on
-  [`university/fall-2024`](https://github.com/sjnakib/opengl-hill-climb-racing/tree/university/fall-2024)
-  keeps its original authors and its own license text.)
+All post-university work is by Shafaat Jamil Nakib. The university project
+keeps its own authors and license text on the
+[`university/fall-2024`](https://github.com/sjnakib/opengl-hill-climb-racing/tree/university/fall-2024)
+branch.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
