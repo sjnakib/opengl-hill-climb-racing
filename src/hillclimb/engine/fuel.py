@@ -22,10 +22,14 @@ class FuelTank:
         return self.fuel <= 0.0
 
     def drain(self, dt: float, speed_px_s: float, difficulty_factor: float) -> float:
-        """Remove fuel for one tick and return the new level."""
+        """Remove fuel for one tick and return the new level.
+
+        The §10.5 factor scales only the speed term, not the idle drain.
+        """
         speed = abs(speed_px_s)
-        rate = IDLE_DRAIN_LITRES_PER_SECOND + speed * SPEED_DRAIN_LITRES_PER_PIXEL
-        self.fuel = max(0.0, self.fuel - rate * difficulty_factor * dt)
+        speed_term = SPEED_DRAIN_LITRES_PER_PIXEL * speed * difficulty_factor
+        rate = IDLE_DRAIN_LITRES_PER_SECOND + speed_term
+        self.fuel = max(0.0, self.fuel - rate * dt)
         return self.fuel
 
     def refill(self) -> float:
