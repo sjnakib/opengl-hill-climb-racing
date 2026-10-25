@@ -1,6 +1,6 @@
 # SPECS: Hill Climb Racing v0.1.1 (binding engineering contract)
 
-Version 1.3.0. Status: binding. Set 2026-10-25. Amendments: 1.1.0 (2026-10-25) added the writing standard (§19) with its prose gate. 1.2.0 (2026-10-25) pinned the milestone B curves: the engine numeric law (§10.2), the difficulty table (§10.3), the drive profile (§10.4), and the spawn and fuel curves (§10.5). 1.3.0 (2026-10-25) added branch verification and commit lanes (§7).
+Version 1.3.1. Status: binding. Set 2026-10-25. Amendments: 1.1.0 (2026-10-25) added the writing standard (§19) with its prose gate. 1.2.0 (2026-10-25) pinned the milestone B curves: the engine numeric law (§10.2), the difficulty table (§10.3), the drive profile (§10.4), and the spawn and fuel curves (§10.5). 1.3.0 (2026-10-25) added branch verification and commit lanes (§7). 1.3.1 (2026-10-25) listed the landed engine modules in the layout tree (§6).
 
 Applies to every commit on `main` and every release from v0.1.1 onward.
 
@@ -125,6 +125,9 @@ The lockfile is the unit of reproduction. All commands run through `uv`.
 │       │   ├── world.py      # collectible spawning per chunk
 │       │   ├── scoring.py    # coins, airtime, flip rules
 │       │   ├── difficulty.py # ramp curves
+│       │   ├── fixedmath.py  # IEEE-only trigonometry (§10.2)
+│       │   ├── fuel.py       # tank state and the drain law
+│       │   ├── simulation.py # headless run coordinator
 │       │   └── rng.py        # named RNG stream factory (§10.2)
 │       ├── app/              # pygame-ce presentation layer
 │       │   ├── main.py       # game loop, fixed timestep
