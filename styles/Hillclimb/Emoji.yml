@@ -1,0 +1,11 @@
+extends: existence
+scope: raw
+level: error
+nonword: true
+message: "Emoji or decorative symbol in repo text. Use plain words."
+tokens:
+  - '[\x{1F000}-\x{1FAFF}]'
+  - '[\x{2600}-\x{27BF}]'
+  - '\x{FE0F}'
+  - '\x{2764}'
+  - '\x{1F1E6}-\x{1F1FF}'

@@ -1,7 +1,7 @@
 [project]
 name = "hillclimb"
 version = "0.1.1.dev0"
-description = "Hill Climb Racing — modern rewrite of a CSE423 computer graphics course project"
+description = "Hill Climb Racing, a modern rewrite of a CSE423 computer graphics course project"
 readme = "README.md"
 requires-python = ">=3.14,<3.15"
 license = "MIT"
@@ -29,6 +29,7 @@ dev = [
   "hypothesis>=6.170,<7",
   "pip-audit>=2.10,<3",
   "pre-commit>=4.7,<5",
+  "vale>=3.25,<4",     # prose linting (SPECS §19)
 ]
 build = [
   "pyinstaller>=6.22.3,<7",

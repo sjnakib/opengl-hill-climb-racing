@@ -1,0 +1,8 @@
+extends: existence
+scope: raw
+level: error
+nonword: true
+message: "Em dash or en dash in prose. Rewrite with a comma, colon, parentheses, or a new sentence. Hyphens only for compound words, ranges, and markdown table rules."
+tokens:
+  - '—'
+  - '–'

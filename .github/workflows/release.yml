@@ -2,7 +2,7 @@ name: release
 
 # Builds dependency-free cross-platform artifacts for tag pushes
 # (SPECS.md §14 and §15). Intentionally fails until the game entry point
-# (src/hillclimb/__main__.py) exists — that is the SPECS §17 DoD gate.
+# (src/hillclimb/__main__.py) exists, which is the SPECS §17 DoD gate.
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --locked --all-groups
-      - name: build (PyInstaller onedir — SPECS §14)
+      - name: build (PyInstaller onedir, SPECS §14)
         run: >
           uv run --no-sync pyinstaller --clean --noconfirm --onedir --windowed
           --name hillclimb --noupx src/hillclimb/__main__.py
