@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
@@ -34,4 +36,5 @@ LEVEL_THREE_PX = (
 def test_t1_terrain_slope_bound(seed: int, x: float) -> None:
     terrain = Terrain(seed)
     assert difficulty_at(x).level >= 3.0
-    assert abs(terrain.slope_at(x)) <= SLOPE_LIMIT_DEGREES
+    degrees = math.degrees(math.atan(terrain.grade_at(x)))
+    assert abs(degrees) <= SLOPE_LIMIT_DEGREES

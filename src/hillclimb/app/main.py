@@ -7,17 +7,24 @@ import math
 from dataclasses import dataclass, replace
 
 from ..config import Config, ConfigStore
-from ..engine.rng import STREAM_NAMES, RngStreams
-from ..engine.terrain import Terrain
+from ..engine.fuel import MAX_FUEL_LITRES
+from ..engine.simulation import InputSegment, ScriptedInput, Simulation
+from ..engine.vehicle import TICK_RATE_HZ
 from .state import GameState, StateMachine
 
 _LOGGER = logging.getLogger(__name__)
 
-SIMULATION_HZ = 120
+SIMULATION_HZ = TICK_RATE_HZ
 SELFTEST_MAX_SECONDS = 5
-SELFTEST_SPEED_PX_PER_S = 500.0
 SAFE_MODE_WIDTH = 800
 SAFE_MODE_HEIGHT = 450
+SELFTEST_DRIVE_TICKS = 4 * SIMULATION_HZ
+SELFTEST_PLAN = ScriptedInput(
+    (
+        InputSegment(0, SELFTEST_DRIVE_TICKS, 1.0, 0.0),
+        InputSegment(SELFTEST_DRIVE_TICKS, SELFTEST_MAX_SECONDS * SIMULATION_HZ, 0.0, 0.6),
+    )
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,22 +55,23 @@ def build_launch_options(
 
 
 def run_selftest(seed: int) -> None:
-    """Run a headless simulation pass of five simulated seconds."""
-    streams = RngStreams(seed)
-    for name in sorted(STREAM_NAMES):
-        streams.stream(name)
-    terrain = Terrain(seed)
+    """Drive a headless simulation for at most five simulated seconds."""
     machine = StateMachine()
     machine.transition(GameState.MENU)
     machine.transition(GameState.PLAY)
-    frame_seconds = 1.0 / SIMULATION_HZ
-    position_px = 0.0
-    for _ in range(SELFTEST_MAX_SECONDS * SIMULATION_HZ):
-        height = terrain.height_at(position_px)
-        if not math.isfinite(height):
-            message = f"terrain height is not finite at x={position_px:.3f}"
-            raise RuntimeError(message)
-        position_px += SELFTEST_SPEED_PX_PER_S * frame_seconds
+    simulation = Simulation(seed)
+    result = simulation.run(SELFTEST_MAX_SECONDS * SIMULATION_HZ, SELFTEST_PLAN)
+    vehicle = simulation.vehicle
+    values = (vehicle.x, vehicle.y, vehicle.vx, vehicle.vy, vehicle.theta, vehicle.omega)
+    if not all(math.isfinite(value) for value in values):
+        message = "selftest produced a non-finite vehicle state"
+        raise RuntimeError(message)
+    if not 0.0 <= result.fuel_litres <= MAX_FUEL_LITRES:
+        message = f"selftest fuel left the legal range: {result.fuel_litres!r}"
+        raise RuntimeError(message)
+    if result.ticks <= 0 or result.score < 0 or result.distance_px < 0.0:
+        message = f"selftest produced an invalid result: {result!r}"
+        raise RuntimeError(message)
     machine.transition(GameState.GAMEOVER)
     machine.transition(GameState.PLAY)
 
