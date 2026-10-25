@@ -1,100 +1,91 @@
-# 🚗 Hill Climb Racing (Simplified)
+# 🚗 Hill Climb Racing — v0.1.1 Rewrite
 
-A small 2D hill climb game where you drive over random hills, collect coins, and keep the fuel tank from running dry.
+A modern ground-up rewrite of a 2D hill climb game: drive over procedurally
+generated hills, collect coins, manage your fuel, and beat your best score.
 
-[![Stars](https://img.shields.io/github/stars/sjnakib/opengl-hill-climb-racing?style=for-the-badge&logo=github&color=yellow)](https://github.com/sjnakib/opengl-hill-climb-racing/stargazers)
-[![Forks](https://img.shields.io/github/forks/sjnakib/opengl-hill-climb-racing?style=for-the-badge&logo=github&color=blue)](https://github.com/sjnakib/opengl-hill-climb-racing/network/members)
-[![Last commit](https://img.shields.io/github/last-commit/sjnakib/opengl-hill-climb-racing?style=for-the-badge&color=green)](https://github.com/sjnakib/opengl-hill-climb-racing/commits/main)
-[![Top language](https://img.shields.io/github/languages/top/sjnakib/opengl-hill-climb-racing?style=for-the-badge)](https://github.com/sjnakib/opengl-hill-climb-racing)
-[![License](https://img.shields.io/github/license/sjnakib/opengl-hill-climb-racing?style=for-the-badge)](https://github.com/sjnakib/opengl-hill-climb-racing/blob/main/LICENSE)
+> [!IMPORTANT]
+> **This project has moved on from its university days.**
+> It began as the **CSE423: Computer Graphics (BRAC University, Fall 2024)**
+> course assignment. That original code is preserved **untouched** on the
+> [`university/fall-2024`](https://github.com/sjnakib/opengl-hill-climb-racing/tree/university/fall-2024)
+> branch (original authors: Shafaat Jamil Nakib, A.B.M Danial,
+> Rabaya Farzana Sikder — see that branch's README).
+>
+> The `main` branch is a **clean-room rewrite** toward a `v0.1.1` release.
+> All new work is authored by **Shafaat Jamil Nakib** only. The rewrite targets
+> current, actively maintained technology and replaces the legacy
+> PyOpenGL/FreeGLUT stack entirely. See [SPECS.md](SPECS.md) for the binding
+> engineering contract.
 
-## About
+## Status
 
-This project is a simplified version of Hill Climb Racing, built for CSE423: Computer Graphics at BRAC University. The game draws the terrain, car, coins, and fuel cans with OpenGL primitives and midpoint line and circle algorithms. The car follows the hills, uses fuel while driving, and scores points for coins and airtime.
+🚧 **In development — no release yet.** The current milestone target is
+[`v0.1.1`](https://github.com/sjnakib/opengl-hill-climb-racing/releases)
+(see the [Definition of Done in SPECS.md](SPECS.md#17-definition-of-done--v011)).
+Downloadable, dependency-free binaries for Linux, macOS and Windows will be
+attached to that release. In the meantime, the tree is intentionally
+script-free: SPECS and tooling first, code second.
 
-## Features
+## What v0.1.1 delivers
 
-- Randomly generated hills with coins and fuel cans
-- Car physics with gravity, friction, and separate front and rear wheel physics
-- Fuel, speed, gear, score, and distance display
-- Airtime bonus points and a game over screen
-- Pause, restart, and keyboard controls
+- Faithful remake of the original: endless procedural terrain, coins
+  (50–5000 points), fuel cans, fuel drain, airtime bonus, crash game over
+- Full game feel: menu, pause, settings (audio buses, keybinds, window),
+  gamepad support, particles, camera lookahead, best-score persistence
+- Deterministic engine: same seed → same world on every platform
+- 60 FPS on integrated graphics; strict coverage and CI quality gates
+- Cross-platform, dependency-free release binaries (Linux / macOS / Windows)
 
-## Tech Stack
+Read [SPECS.md](SPECS.md) for the complete, binding specifications.
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![OpenGL](https://img.shields.io/badge/OpenGL-5586A4?style=for-the-badge&logo=opengl&logoColor=white)
-![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+## Tech stack (locked by SPECS.md §4)
 
-## Getting Started
-
-You need Python 3 and freeglut. If freeglut is missing, install it with your package manager. For example, on Debian or Ubuntu:
-
-```bash
-sudo apt install freeglut3-dev
-```
-
-On Arch Linux:
-
-```bash
-sudo pacman -S freeglut
-```
-
-Create a virtual environment and install the Python dependency:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Run the game:
-
-```bash
-python hill_climb.py
-```
-
-On a Wayland session, use the GLX backend:
-
-```bash
-PYOPENGL_PLATFORM=glx python hill_climb.py
-```
-
-## Usage
-
-Drive with the keyboard:
-
-| Key | Action |
+| Role | Technology |
 | --- | --- |
-| `A` | Drive left |
-| `D` | Drive right |
-| `Space` | Pause or resume |
-| `R` | Restart |
-| `Esc` | Quit |
+| Language | Python 3.14 (pinned, `<3.15`) |
+| Framework | pygame-ce 2.5.8 (actively-maintained SDL2 fork, not legacy pygame) |
+| Env & lock | uv 0.13+ with committed `uv.lock` |
+| Lint / format | ruff 0.17+ (strict rule set) |
+| Types | mypy 2.4+ in `strict` mode |
+| Tests | pytest 9, coverage 7, hypothesis 6 |
+| Supply chain | pip-audit against the PyPI Advisory Database |
+| Packaging | PyInstaller 6.22+ `onedir` bundles per platform |
 
-Press `D` to drive right. The car moves over the hills, the fuel gauge drops, and the distance counter goes up. Collect a coin to add a random amount from 50 to 5000 points. Collect a fuel can to refill the tank to 100 L. If the fuel reaches 0, the game ends and shows your final score.
+[![CI](https://github.com/sjnakib/opengl-hill-climb-racing/actions/workflows/ci.yml/badge.svg)](https://github.com/sjnakib/opengl-hill-climb-racing/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/sjnakib/opengl-hill-climb-racing)](LICENSE)
 
-## Project Structure
+## Development quickstart
 
-```text
-.
-├── hill_climb.py                # Main game loop, physics, HUD, and input
-├── lib/
-│   ├── __init__.py
-│   └── drawing.py               # Midpoint line and circle drawing helpers
-├── docs/
-│   └── game-specification.docx  # Assignment brief
-├── requirements.txt             # Python dependencies
-├── LICENSE                      # MIT license
-└── README.md
+```bash
+# 1. install uv (https://docs.astral.sh/uv/)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 2. sync the locked environment (creates .venv, exact locked versions)
+uv sync --all-groups
+
+# 3. install the local git hooks
+uv run pre-commit install
+
+# 4. gates (all must be green before any PR merges — see SPECS §13)
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy src tests
+uv run coverage run -m pytest
+uv run coverage report
+uv run pip-audit
 ```
 
-## Authors
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow and commit
+conventions. **[SPECS.md](SPECS.md) is binding** — changing it requires a
+dedicated spec-change PR (SPECS §18).
 
-- Shafaat Jamil Nakib
-- A.B.M Danial
-- Rabaya Farzana Sikder
+## Author
+
+- **Shafaat Jamil Nakib** — all post-university work. (The archived
+  university project on
+  [`university/fall-2024`](https://github.com/sjnakib/opengl-hill-climb-racing/tree/university/fall-2024)
+  keeps its original authors and its own license text.)
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for the full text.
+MIT — see [LICENSE](LICENSE).
