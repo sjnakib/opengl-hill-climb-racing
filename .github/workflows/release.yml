@@ -1,0 +1,103 @@
+name: release
+
+# Builds dependency-free cross-platform artifacts for tag pushes
+# (SPECS.md §14 and §15). Intentionally fails until the game entry point
+# (src/hillclimb/__main__.py) exists — that is the SPECS §17 DoD gate.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04        # glibc 2.35 baseline (SPECS §3)
+            id: linux-x86_64
+          - os: ubuntu-24.04-arm    # best-effort aarch64 tier
+            id: linux-aarch64
+          - os: macos-15            # arm64 Apple Silicon (SPECS §3)
+            id: macos-arm64
+          - os: windows-2025        # amd64
+            id: windows-amd64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78  # v7.6
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+      - name: build (PyInstaller onedir — SPECS §14)
+        run: >
+          uv run --no-sync pyinstaller --clean --noconfirm --onedir --windowed
+          --name hillclimb --noupx src/hillclimb/__main__.py
+
+      - name: smoke test (--selftest must exit 0)
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            dist/hillclimb.app/Contents/MacOS/hillclimb --selftest
+          elif [ "$RUNNER_OS" = "Windows" ]; then
+            dist/hillclimb/hillclimb.exe --selftest
+          else
+            dist/hillclimb/hillclimb --selftest
+          fi
+
+      - name: package artifact
+        shell: bash
+        run: |
+          ver="${GITHUB_REF_NAME#v}"
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            z="hillclimb-v${ver}-macos-arm64.zip"
+            zip -r "$z" dist/hillclimb.app
+          elif [ "$RUNNER_OS" = "Windows" ]; then
+            z="hillclimb-v${ver}-windows-amd64.zip"
+            7z a "$z" dist/hillclimb
+          else
+            z="hillclimb-v${ver}-${{ matrix.id }}.tar.gz"
+            tar -czf "$z" -C dist hillclimb
+          fi
+
+      - name: checksums
+        shell: bash
+        run: |
+          ver="${GITHUB_REF_NAME#v}"
+          mkdir -p out
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            z="hillclimb-v${ver}-macos-arm64.zip"
+          elif [ "$RUNNER_OS" = "Windows" ]; then
+            z="hillclimb-v${ver}-windows-amd64.zip"
+          else
+            z="hillclimb-v${ver}-${{ matrix.id }}.tar.gz"
+          fi
+          hashfile="out/${z}.sha256"
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "$z" | awk '{print $1"  "$2}' > "$hashfile"
+          else
+            shasum -a 256 "$z" | awk '{print $1"  "$2}' > "$hashfile"
+          fi
+          mv "$z" out/
+
+      - name: upload artifacts to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release create "${GITHUB_REF_NAME}" --draft \
+            --title "Hill Climb Racing ${GITHUB_REF_NAME}" || true
+          gh release upload "${GITHUB_REF_NAME}" out/* --clobber

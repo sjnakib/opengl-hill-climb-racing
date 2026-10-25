@@ -1,0 +1,19 @@
+# Local mirror of the CI gates. CI is the source of truth.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b   # v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]
+      - id: check-toml
+      - id: check-yaml
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 45ef068da5f21267bb2a7ec4a623092959f09ce5   # v0.14.14 (CI pins 0.17.2+)
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format

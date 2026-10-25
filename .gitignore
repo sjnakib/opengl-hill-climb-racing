@@ -3,11 +3,22 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 
 # Virtual environments
 .venv/
 venv/
 env/
+
+# Packaging artifacts
+build/
+dist/
+*.spec
 
 # Editors
 .vscode/
@@ -15,7 +26,12 @@ env/
 
 # OS files
 .DS_Store
+Thumbs.db
+
+# Local secrets
+.env
+.env.*
 
 # Logs and local archives
 *.log
-*.zip
+*.tar.gz

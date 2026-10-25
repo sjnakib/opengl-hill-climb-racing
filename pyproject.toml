@@ -1,0 +1,93 @@
+[project]
+name = "hillclimb"
+version = "0.1.1.dev0"
+description = "Hill Climb Racing — modern rewrite of a CSE423 computer graphics course project"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+license = "MIT"
+authors = [{ name = "Shafaat Jamil Nakib", email = "shafaat.contact@gmail.com" }]
+keywords = ["game", "hill-climb", "pygame", "2d", "arcade"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Games/Entertainment :: Arcade",
+]
+dependencies = [
+  "pygame-ce>=2.5.8,<2.6",
+  "platformdirs>=4.13,<5",
+  "tomli-w>=1.2,<2",
+]
+
+[dependency-groups]
+dev = [
+  "ruff>=0.17.2,<0.18",
+  "mypy>=2.4,<3",
+  "pytest>=9.1,<10",
+  "coverage[toml]>=7.17,<8",
+  "hypothesis>=6.170,<7",
+  "pip-audit>=2.10,<3",
+  "pre-commit>=4.7,<5",
+]
+build = [
+  "pyinstaller>=6.22.3,<7",
+  "pip-licenses>=5.5,<6",
+]
+
+[tool.uv]
+package = false          # flips to a true package + console script at game MVP time
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "COM812", "ISC001",       # formatter-compat
+  "CPY001",                 # copyright headers not used
+  "D203", "D213",           # docstring style normalization
+  "TID252",                 # relative imports are our official style
+  "EM101", "EM102",         # allow f-string raise messages
+  "TRY003",                 # long exception messages are fine
+  "FIX002", "TD003",        # TODO without issue is allowed project-side
+  "G004",                   # f-string logging is fine
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004", "D", "ANN"]
+"scripts/**" = ["T20", "S603", "S607", "S602"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+enable_error_code = ["ignore-without-code"]
+
+[[tool.mypy.overrides]]
+module = "pygame.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers --strict-config"
+testpaths = ["tests"]
+markers = ["gui: tests that boot the pygame window stack (headless-dummy on CI)"]
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source = ["src/hillclimb"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  'if __name__ == "__main__":',
+]
