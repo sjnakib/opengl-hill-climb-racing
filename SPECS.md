@@ -1,6 +1,6 @@
 # SPECS: Hill Climb Racing v0.1.1 (binding engineering contract)
 
-Version 1.1.0. Status: binding. Set 2026-10-25. Amendment 1.1.0 (2026-10-25) added the writing standard (§19) and its prose gate.
+Version 1.2.0. Status: binding. Set 2026-10-25. Amendments: 1.1.0 (2026-10-25) added the writing standard (§19) with its prose gate. 1.2.0 (2026-10-25) pinned the milestone B curves: the engine numeric law (§10.2), the difficulty table (§10.3), the drive profile (§10.4), and the spawn and fuel curves (§10.5).
 
 Applies to every commit on `main` and every release from v0.1.1 onward.
 
@@ -212,18 +212,31 @@ An endless procedural stage with a single car. Collect coins, keep fuel above ze
 - All randomness flows through named streams built by `engine/rng.py` from a master seed: `terrain`, `items`, `fx`. Cosmetics must never affect physics.
 - Streams are `random.Random` instances seeded as `random.Random(f"{master}:{name}")`, stable across platforms for the pinned Python minor, 3.14.x.
 - `--seed N` reproduces a run deterministically on every platform.
+- Engine numeric law. Engine arithmetic uses only IEEE 754 exactly defined operations: addition, subtraction, multiplication, division, integer ops, `%` (fmod), `fabs`, `min` and `max`, and `sqrt` (correctly rounded by IEEE 754, so it stays legal). libm transcendentals (`sin`, `cos`, `tan`, `atan2`, `exp`, `log`, `pow`, `hypot`) differ in their last bits across platforms, so `engine/**` bans them the same way it bans pygame (§6), and the CI `rules` job gains that grep. Deterministic trig lives in `engine/fixedmath.py`: `% TAU` argument reduction plus a fixed polynomial evaluated with basic operations. The app layer may use libm freely. Milestone A's `terrain.py` switches to the helper, and its slope budget `tan` values become literals (0.26795 and 1.42815), before any R1 baseline is recorded.
 
 ### 10.3 Terrain
 
 - The heightfield is generated chunk-wise. Height queries by x are O(1). There are no O(n) global arrays, and chunks are recycled.
 - Property: absolute slope stays at or under 60 degrees at difficulty 3 and above, and terrain stays reachable: no step-up steeper than the car's ground-contact capability. Property tests T1 and T2 in §12 check this.
-- Difficulty ramps with distance. Amplitude, frequency, and roughness grow as a pure function of distance.
+- Difficulty is a pure function of distance, on these binding curves:
+
+  | Parameter | Value |
+  | --- | --- |
+  | Sampling | 8 px sample spacing, 512 px chunks (64 samples), LRU cache of 32 chunks |
+  | Base height | 600 px |
+  | Ramp distance | 45,000 px, linear blend across it |
+  | Difficulty level | 1.0 at 0 px to 10.0 at 45,000 px, linear |
+  | Octaves | 4 waves, wavelengths 2048, 1536, 1024, 768 px, per-seed phases from the `terrain` stream |
+  | Octave weights | (1.0, 0.0, 0.0, 0.0) blending linearly to (0.55, 0.25, 0.14, 0.06) |
+  | Slope budget | Rise-over-run budget 0.26795 at 0 px up to 1.42815 at 45,000 px, linear. These correspond to 15 and 55 degrees, under the 60 degree limit |
+  | Roughness | 1 minus the longest-wavelength weight |
 
 ### 10.4 Car physics
 
 - Two point wheels on a rigid chassis, the model that made the original fun, implemented properly: per-wheel ground snap, suspension damping, drive torque with a speed limiter.
 - Top speed 500 px/s. Display as `round(|v|/10 × 3.6)` km/h. 10 px = 1 m.
 - Game over when fuel reaches zero and the car comes to rest, or when the driver's head vertex touches terrain while the car is in motion.
+- Drive force is full at or below 250 px/s and tapers linearly to zero at the 500 px/s cap. Reverse drive is capped at 150 px/s. Suspension constants are engine-internal tuning (§7 rule 5), validated by stability properties: no terrain penetration and no blow-up over a long scripted run.
 
 ### 10.5 Pickups, fuel, and scoring
 
@@ -233,8 +246,11 @@ An endless procedural stage with a single car. Collect coins, keep fuel above ze
 | Airtime bonus | 50 points per full airborne second, doubling each further full second. The original mechanic, kept |
 | Flip bonus | 100 points per full 360 degree rotation while airborne |
 | Fuel | Max 100.0 L. Drain per second: `0.55 + |v| × 0.012 × difficulty factor`. A fuel can refills to full |
-| Fuel guarantee | Expected time between fuel cans is 45 s or less for any seed at difficulty 5 or lower, property-tested over 100 seeds |
-| Item spacing | Coins and cans never overlap or spawn inside terrain. Minimum inter-item gap 25 m |
+| Fuel guarantee | At the scripted nominal speed of 100 px/s, the mean gap between consecutive fuel cans is at most 4,500 px (45 s) for every seed at difficulty level 5 or lower, property tested over 100 seeds |
+| Fuel drain factor | The difficulty factor in the drain formula is the §10.3 difficulty level at the car's current distance, divided by 10, so 0.1 at level 1 through 1.0 at level 10 |
+| Fuel can spacing | Gaps drawn per seed from the `items` stream, uniform between 2,000 and 5,000 px, mean 3,500 px (35 s at nominal) |
+| Item spacing | Items never overlap or spawn inside terrain. The minimum gap between any two coin groups, and between a group and a fuel can, is 25 m (250 px); coins inside one group sit 40 to 80 px apart |
+| Coin groups | One group every uniform 700 to 1,100 px (mean 900 px), 2 to 6 coins per group, each coin's value drawn from the coin table via the `items` stream |
 
 ### 10.6 Input
 
@@ -266,12 +282,12 @@ The keyboard is fully remappable in settings. Gamepad mapping uses SDL standard 
 
 Machine-enforced and all green before merge:
 
-1. Coverage, with branch mode on. Total is at least 85 percent through `--fail-under=85`, wired from day one. The engine floor is at least 97 percent, and that gate lands together with the first engine module, through `scripts/coverage_gate.py`: `coverage json`, then a per-directory floor enforced in CI.
+1. Coverage, with branch mode on. Total is at least 85 percent through `--fail-under=85`, wired from day one. The engine floor is at least 97 percent through `scripts/coverage_gate.py`: `coverage json`, then a per-directory floor enforced in CI.
 2. Property tests with hypothesis in `tests/property/` are mandatory:
    - T1, terrain slope bound; T2, terrain reachability; T3, fuel stays within [0, 100].
    - R1, replay determinism: same seed with scripted inputs gives exactly the same score and distance across platforms.
    - S1, score monotonicity under replays.
-   - P1, pickup spacing and the fuel guarantee property.
+   - P1, pickup spacing plus the fuel guarantee (per-seed mean inter-can gap at most 4,500 px at the 100 px/s nominal over 100 seeds).
    - M1, config and save schema round-trip plus migration property.
 3. GUI tests run headless with `SDL_VIDEODRIVER=dummy`: boot to menu, PLAY to PAUSED and back, PLAY to GAMEOVER to PLAY, clean shutdown. They are marked `gui`, skipped in developer sandboxes without SDL video, and always run on CI.
 4. Anti-slop rules for tests: no `time.sleep` pacing, no network, no unseeded randomness, single tests stay under 2 s except those marked `perf`, and no test may assert implementation details. Observable behavior only.
@@ -306,8 +322,8 @@ Machine-enforced and all green before merge:
 | --- | --- | --- |
 | `lint` | Every PR and push to `main` | ruff check, ruff format check |
 | `prose` | Same | vale writing checks: em and en dashes, emoji, banned telltale words, on all repo markdown (§19) |
-| `types` | Same | mypy strict, skipping cleanly until `src/` exists |
-| `test` | Same | coverage run plus `--fail-under=85`, skipping cleanly until `tests/` exists |
+| `types` | Same | mypy strict on `src` and `tests` |
+| `test` | Same | coverage run plus `--fail-under=85`, plus the per-directory engine floor gate (§12) |
 | `rules` | Same | Engine purity import ban, repo-wide network import ban |
 | `audit` | PRs and weekly cron | pip-audit fails on any known CVE |
 | `release` | Tag `v*` push | Build plus smoke on 4 runners, attach artifacts. Fails until the entry point exists, by design |
