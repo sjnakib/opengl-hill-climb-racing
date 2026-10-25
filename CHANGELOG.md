@@ -28,9 +28,13 @@ versions fix bugs.
   A vale prose gate in CI enforces it (no em dashes, no emoji, no telltale
   AI vocabulary).
 - A `prose` CI job running the writing checks on every repo markdown file.
+- Local branch verification guards (SPECS §7): a detached-HEAD and branch
+  shape check at commit time, a commit-lane to branch mapping at message
+  time, and a pre-push guard that refuses pushes of a stale ref, so a
+  wrong-branch push cannot overwrite remote `main`.
 
 ### Changed
-- The CI `types` and `test` jobs now run their real gates: mypy strict on the
+- CI `types` and `test` jobs now run their real gates: mypy strict on the
   new sources, and coverage-enforced tests with the engine floor.
 - The project is installed by `uv sync` through the uv build backend, so
   `--version` reads installed metadata (SPECS §14).

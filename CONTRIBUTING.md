@@ -7,8 +7,31 @@ wrong, or the spec needs a dedicated amendment (SPECS §18).
 
 ```bash
 uv sync --all-groups
-uv run pre-commit install
+uv run pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
 ```
+
+## Branch verification, first and every time
+
+```bash
+git status -sb
+git branch --show-current
+```
+
+Run both before any edit, any pull, and any commit, and every time you
+return to a terminal or a coding agent session. If the checked-out branch
+is not the one the task expects, switch first. A merged PR can leave the
+tree standing on its own stale feature branch.
+
+Local guards (SPECS §7) reject the failure modes mechanically:
+
+- Commits from a detached HEAD, or on a branch that is neither `main` nor a
+  conventional prefix, are refused.
+- Commit lanes map to branches: `spec:`, `docs:`, `chore:`, and `release:`
+  on `main`; `feat:`, `fix:`, `test:`, `refactor:`, `perf:`, and `ci:` on a
+  prefixed branch.
+- Every push must move the current branch at HEAD. `git push origin main`
+  from another branch is refused instead of silently pushing a stale ref,
+  and deleting `main` or the `university/` archive is refused.
 
 ## Before every push
 
@@ -30,8 +53,8 @@ uv run vale README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md SPECS.md \
 ## Rules of the road
 
 1. Commits use Conventional Commits, like `feat:`, `fix:`, `docs:`, `chore:`,
-   `test:`, `refactor:`, `perf:`, `release:`. Merges to `main` are squash
-   merges only.
+   `test:`, `refactor:`, `perf:`, `release:`, `ci:`. Changes reach `main`
+   through pull requests whose final merge GitHub performs.
 2. One PR holds one change. The PR template checklist is part of review.
    Removing checklist items can close the PR.
 3. Debug with `logging`, not `print()`.
@@ -50,3 +73,7 @@ uv run vale README.md CHANGELOG.md CONTRIBUTING.md SECURITY.md SPECS.md \
 10. Every CI gate runs on every PR. The `types` and `test` jobs now check the
     package skeleton, and `test` also enforces the engine coverage floor
     (SPECS §12). SPECS §17 defines what done means.
+11. Branch verification comes first: `git status -sb` and
+    `git branch --show-current` before edits, pulls, and pushes. The guards
+    in `scripts/branch_guard.py` refuse wrong-branch work mechanically
+    (SPECS §7); if one refuses you, fix the branch context, never bypass it.
