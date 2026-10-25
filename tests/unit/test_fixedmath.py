@@ -46,6 +46,26 @@ def test_cosine_uses_the_same_deterministic_kernel() -> None:
         assert abs(cosine(angle) - math.cos(angle)) <= 1e-12
 
 
+@pytest.mark.parametrize(
+    "angle",
+    [
+        1e18,
+        2e18,
+        1e20,
+        1e300,
+        -1e300,
+        9.9e307,
+        -9.9e307,
+        1e308,
+        -1e308,
+        5e-324,
+        1e-300,
+    ],
+)
+def test_sine_matches_libm_for_extreme_angles(angle: float) -> None:
+    assert abs(sine(angle) - math.sin(angle)) <= 1e-12
+
+
 @pytest.mark.parametrize("bad", [math.nan, math.inf, -math.inf])
 def test_sine_rejects_non_finite_angles(bad: float) -> None:
     with pytest.raises(ValueError, match="finite"):

@@ -140,9 +140,9 @@ def test_collect_handles_the_last_items_and_a_missed_distance() -> None:
     last_coin = world.coins[-1]
     last_can = world.fuel_cans[-1]
     world.collect(last_coin.x, last_coin.y, 1.0)
+    missed = world.collect(last_can.x, last_can.y + 100.0, 1.0)
+    assert missed.fuel_cans == 0
     world.collect(last_can.x, last_can.y, 1.0)
-    buffer = world.collect(last_can.x, last_can.y + 100.0, 1.0)
-    assert buffer.fuel_cans == 0
 
 
 def test_pickup_buffer_can_be_reset_directly() -> None:
