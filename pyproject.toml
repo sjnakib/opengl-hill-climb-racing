@@ -1,3 +1,7 @@
+[build-system]
+requires = ["uv_build>=0.13.5,<0.14"]
+build-backend = "uv_build"
+
 [project]
 name = "hillclimb"
 version = "0.1.1.dev0"
@@ -20,6 +24,9 @@ dependencies = [
   "tomli-w>=1.2,<2",
 ]
 
+[project.scripts]
+hillclimb = "hillclimb.__main__:main"
+
 [dependency-groups]
 dev = [
   "ruff>=0.17.2,<0.18",
@@ -37,7 +44,7 @@ build = [
 ]
 
 [tool.uv]
-package = false          # flips to a true package + console script at game MVP time
+package = true             # installable package: --version reads installed metadata (SPECS §14)
 
 [tool.ruff]
 line-length = 100
@@ -66,6 +73,7 @@ convention = "google"
 
 [tool.mypy]
 python_version = "3.14"
+mypy_path = "src"
 strict = true
 warn_unreachable = true
 enable_error_code = ["ignore-without-code"]

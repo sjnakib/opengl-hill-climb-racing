@@ -278,7 +278,7 @@ wheels = [
 [[package]]
 name = "hillclimb"
 version = "0.1.1.dev0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "platformdirs" },
     { name = "pygame-ce" },
