@@ -7,6 +7,7 @@ from itertools import pairwise
 
 import pytest
 
+from hillclimb.engine.rng import RngStreams
 from hillclimb.engine.terrain import (
     DIFFICULTY_RAMP_PX,
     MAX_DIFFICULTY_LEVEL,
@@ -32,13 +33,28 @@ def test_different_seeds_build_different_terrain() -> None:
     assert [first.height_at(x) for x in positions] != [second.height_at(x) for x in positions]
 
 
+def test_injected_streams_match_the_default_streams() -> None:
+    default = Terrain(77)
+    injected = Terrain(77, streams=RngStreams(77))
+    assert [default.height_at(float(x)) for x in range(0, 4096, 64)] == [
+        injected.height_at(float(x)) for x in range(0, 4096, 64)
+    ]
+
+
 @pytest.mark.parametrize("bad", [-1.0, math.nan, math.inf, -math.inf])
 def test_height_and_slope_reject_bad_positions(bad: float) -> None:
     terrain = Terrain(3)
     with pytest.raises(ValueError, match="finite, non-negative"):
         terrain.height_at(bad)
     with pytest.raises(ValueError, match="finite, non-negative"):
-        terrain.slope_at(bad)
+        terrain.grade_at(bad)
+
+
+def test_grade_is_rise_over_run_on_a_sample_interval() -> None:
+    terrain = Terrain(12)
+    x = 1232.0
+    expected = (terrain.height_at(x + 8.0) - terrain.height_at(x)) / 8.0
+    assert terrain.grade_at(x) == pytest.approx(expected)
 
 
 def test_chunk_boundaries_are_continuous() -> None:
@@ -88,7 +104,8 @@ def test_slope_stays_under_contract_on_a_dense_scan() -> None:
     for seed in (1, 2, 3):
         terrain = Terrain(seed)
         for step in range(0, 120_000, 8):
-            assert abs(terrain.slope_at(float(step))) <= SLOPE_LIMIT_DEGREES
+            degrees = math.degrees(math.atan(terrain.grade_at(float(step))))
+            assert abs(degrees) <= SLOPE_LIMIT_DEGREES
 
 
 def test_reachability_span_holds_on_a_dense_scan() -> None:

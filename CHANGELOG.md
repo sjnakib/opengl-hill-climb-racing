@@ -32,10 +32,26 @@ versions fix bugs.
   shape check at commit time, a commit-lane to branch mapping at message
   time, and a pre-push guard that refuses pushes of a stale ref, so a
   wrong-branch push cannot overwrite remote `main`.
+- The milestone B engine (SPECS §10.2 to §10.5): IEEE-only `fixedmath`
+  sine, a shared difficulty module, two-wheel vehicle physics with
+  suspension and a speed limiter, fuel, coin groups and fuel cans, coin,
+  airtime, and flip scoring, and a headless run coordinator.
+- Property and golden tests for the engine: T3 fuel bounds, S1 score
+  monotonicity, P1 pickup spacing and the fuel guarantee over 100 seeds,
+  R1 replay determinism with a committed golden replay, suspension
+  stability, and fx stream isolation.
+- A CI `determinism` job on `ubuntu-24.04` and `windows-2025`, both
+  replaying the committed R1 fixture.
 
 ### Changed
+- Terrain now uses the fixed polynomial sine, literal slope budgets, and
+  `grade_at` rise-over-run grades (SPECS §10.2, §10.3).
+- `--selftest` now drives a real headless simulation for at most five
+  simulated seconds instead of sampling terrain heights in a loop.
 - CI `types` and `test` jobs now run their real gates: mypy strict on the
   new sources, and coverage-enforced tests with the engine floor.
+- The CI `rules` job rejects libm transcendentals under `engine/` in
+  addition to the pygame and network import bans (SPECS §10.2).
 - The project is installed by `uv sync` through the uv build backend, so
   `--version` reads installed metadata (SPECS §14).
 - README, CONTRIBUTING, SECURITY, and the PR template were rewritten to the
