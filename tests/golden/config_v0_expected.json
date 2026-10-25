@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "master_volume": 80,
+  "music_volume": 80,
+  "sfx_volume": 80,
+  "window_width": 1024,
+  "window_height": 576,
+  "theme": "classic"
+}
