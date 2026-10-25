@@ -8,6 +8,7 @@ __pycache__/
 .coverage
 .coverage.*
 coverage.xml
+coverage.json
 htmlcov/
 
 # Virtual environments
