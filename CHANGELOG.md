@@ -42,12 +42,23 @@ versions fix bugs.
   stability, and fx stream isolation.
 - A CI `determinism` job on `ubuntu-24.04` and `windows-2025`, both
   replaying the committed R1 fixture.
+- A fixed-timestep application loop (SPECS §8) that samples input, runs up
+  to 25 catch-up ticks, and presents through a flat-color pygame window.
+- Keyboard and gamepad input for the §10.6 defaults, with held levels and
+  one-frame edge flags for pause, restart, confirm, and back.
+- An idle audio mixer with master, music, and sfx bus math, 44.1 kHz
+  pre-init, one music stream, and eight sfx channels.
+- A headless gui suite for boot, pause and resume, restart, game over,
+  input mapping, audio gains, and clean shutdown.
 
 ### Changed
 - Terrain now uses the fixed polynomial sine, literal slope budgets, and
   `grade_at` rise-over-run grades (SPECS §10.2, §10.3).
 - `--selftest` now drives a real headless simulation for at most five
   simulated seconds instead of sampling terrain heights in a loop.
+- `--selftest` now drives the real fixed-timestep loop for at most 600
+  headless frames, so it exercises the same input and pacing path as the
+  playable app.
 - CI `types` and `test` jobs now run their real gates: mypy strict on the
   new sources, and coverage-enforced tests with the engine floor.
 - The CI `rules` job rejects libm transcendentals under `engine/` in
